@@ -44,8 +44,8 @@ describe('WordSplitter', () => {
         });
 
         it('numbers and entities', () => {
-            const string = '123@entity';
-            const expectedWords = ['1', '2', '3', '@entity'];
+            const string = '123&entity';
+            const expectedWords = ['1', '2', '3', '&entity'];
             expect(WordSplitter.convertHtmlToListOfWords(string)).toEqual(
                 expect.arrayContaining(expectedWords)
             );
@@ -66,6 +66,22 @@ describe('WordSplitter', () => {
                 '3',
                 ' ',
             ];
+            expect(WordSplitter.convertHtmlToListOfWords(string)).toEqual(
+                expect.arrayContaining(expectedWords)
+            );
+        });
+
+        it('entities and whitespace', () => {
+            const string = ' &entity  ';
+            const expectedWords = [' ', '&entity', '  '];
+            expect(WordSplitter.convertHtmlToListOfWords(string)).toEqual(
+                expect.arrayContaining(expectedWords)
+            );
+        });
+
+        it('character and entities', () => {
+            const string = ' [&entity]';
+            const expectedWords = ['[', '&entity', ']'];
             expect(WordSplitter.convertHtmlToListOfWords(string)).toEqual(
                 expect.arrayContaining(expectedWords)
             );
@@ -128,9 +144,9 @@ describe('WordSplitter', () => {
             );
 
             const hardString =
-                '<tag style="font-weight: 500; @font-face:"Roboto";" >some text </tag>';
+                '<tag style="font-weight: 500; &font-face:"Roboto";" >some text </tag>';
             const expectedWords2 = [
-                '<tag style="font-weight: 500; @font-face:"Roboto";" >',
+                '<tag style="font-weight: 500; &font-face:"Roboto";" >',
                 '</tag>',
             ];
 
@@ -140,18 +156,46 @@ describe('WordSplitter', () => {
         });
 
         it('returns entities ', () => {
-            const string = '@entity; @otherentity';
-            const expectedWords = ['@entity', '@otherentity'];
+            const string = '&entity; &otherentity';
+            const expectedWords = ['&entity;', '&otherentity'];
             expect(WordSplitter.convertHtmlToListOfWords(string)).toEqual(
                 expect.arrayContaining(expectedWords)
             );
         });
 
         it('returns entities with right borders (delimiter - ";")', () => {
-            const string = '@entity;notEntityPart';
-            const expectedWords = ['@entity'];
+            const string = '&entity;notEntityPart';
+            const expectedWords = ['&entity;'];
             expect(WordSplitter.convertHtmlToListOfWords(string)).toEqual(
                 expect.arrayContaining(expectedWords)
+            );
+        });
+
+        it('difficult string with (tags, entities, numbers, characters, words, ect.)', () => {
+            const string = '&en; ~  ~1 ~word &<>  <>&1 & ';
+            const expectedWords = [
+                '&en;',
+                ' ',
+                '~',
+                '  ',
+                '~',
+                '1',
+                ' ',
+                '~',
+                'word',
+                ' ',
+                '&',
+                '<>',
+                '  ',
+                '<>',
+                '&',
+                '1',
+                ' ',
+                '&',
+                ' ',
+            ];
+            expect(WordSplitter.convertHtmlToListOfWords(string)).toEqual(
+                expectedWords
             );
         });
 
@@ -164,6 +208,18 @@ describe('WordSplitter', () => {
                     blockExp,
                 ])
             ).toEqual(expect.arrayContaining(expectedDates));
+        });
+
+        it('when blockExpressions cross each other - will throw an error', () => {
+            const stringWithDate = '19.02.2022 and other words';
+            const blockExp = /\d\d.\d\d.\d\d\d\d/gm;
+            const blockExp2 = /\d\d.\d\d.\d\d\d\d/gm;
+            expect(() =>
+                WordSplitter.convertHtmlToListOfWords(stringWithDate, [
+                    blockExp,
+                    blockExp2,
+                ])
+            ).toThrowError();
         });
     });
 });

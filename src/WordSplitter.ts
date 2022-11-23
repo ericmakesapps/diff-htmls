@@ -143,39 +143,6 @@ class WordSplitter {
                             this.state.words.push(
                                 this.state.currentWord.join('')
                             );
-
-                            //join &nbsp; entity with last whitespace
-                            if (
-                                this.state.words.length > 2 &&
-                                Utils.isWhiteSpace(
-                                    this.state.words[
-                                        this.state.words.length - 2
-                                    ]
-                                ) &&
-                                Utils.isWhiteSpace(
-                                    this.state.words[
-                                        this.state.words.length - 1
-                                    ]
-                                )
-                            ) {
-                                let w1 =
-                                    this.state.words[
-                                        this.state.words.length - 2
-                                    ];
-                                let w2 =
-                                    this.state.words[
-                                        this.state.words.length - 1
-                                    ];
-                                this.state.words.splice(
-                                    this.state.words.length - 2,
-                                    2
-                                );
-                                this.state.currentWord = [
-                                    ...(w1 + w2).split(''),
-                                ];
-                                this.state.mode = Mode.whitespace;
-                                switchToNextMode = false;
-                            }
                         }
 
                         if (switchToNextMode) {
