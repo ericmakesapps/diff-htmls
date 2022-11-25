@@ -65,11 +65,7 @@ class HtmlDiff {
         this.orphanMatchThreshold = 0.0;
     }
 
-    public static execute(oldText: string, newText: string) {
-        return new HtmlDiff(oldText, newText).build();
-    }
-
-    build() {
+    diff() {
         if (this.oldText === this.newText) {
             return this.newText;
         }

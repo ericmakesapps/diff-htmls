@@ -1,8 +1,200 @@
-import Diff from '../Diff';
+import HtmlDiff from '../Diff';
+import Match from '../Match';
+import Operation from '../Operation';
+import {Action} from '../types';
 
 describe('WordSplitter', () => {
-    it('findMatch`', () => {
-        const diff = Diff.execute('this is old text', 'this is new staff');
-        console.log(diff);
+    describe('splitInputsIntoWords()', () => {
+        it('split oldText and newText into words`', () => {
+            const htmlDiff = new HtmlDiff('old words', 'new text');
+            htmlDiff.splitInputsIntoWords();
+
+            expect(htmlDiff['oldWords']).toEqual(['old', ' ', 'words']);
+            expect(htmlDiff['newWords']).toEqual(['new', ' ', 'text']);
+        });
+    });
+
+    describe('findMatch()', () => {
+        it('if found match - return it', () => {
+            const htmlDiff = new HtmlDiff('same text', 'new text'); // " text" - is match
+
+            htmlDiff.splitInputsIntoWords();
+            htmlDiff['matchGranularity'] = 4; // block size for search
+
+            const expectedMatch = new Match(1, 1, 2);
+
+            expect(
+                htmlDiff.findMatch({
+                    startInOld: 0,
+                    endInOld: htmlDiff['oldWords'].length,
+                    startInNew: 0,
+                    endInNew: htmlDiff['newWords'].length,
+                })
+            ).toEqual(expectedMatch);
+        });
+
+        it('if did not find match - return null', () => {
+            const htmlDiff = new HtmlDiff('same text', 'new-words'); // no matches
+
+            htmlDiff.splitInputsIntoWords();
+            htmlDiff['matchGranularity'] = 4; // block size for search
+
+            expect(
+                htmlDiff.findMatch({
+                    startInOld: 0,
+                    endInOld: htmlDiff['oldWords'].length,
+                    startInNew: 0,
+                    endInNew: htmlDiff['newWords'].length,
+                })
+            ).toEqual(null);
+        });
+
+        it('startInOld and startInNew - will start search in old and new text from specified position', () => {
+            const htmlDiff = new HtmlDiff('new words', 'new text'); // "new " - is match
+
+            htmlDiff.splitInputsIntoWords();
+            htmlDiff['matchGranularity'] = 4; // you can say it's biggest block size
+
+            expect(
+                htmlDiff.findMatch({
+                    startInOld: 2, // start from 3th word
+                    endInOld: htmlDiff['oldWords'].length,
+                    startInNew: 2, // start from 3th word
+                    endInNew: htmlDiff['newWords'].length,
+                })
+            ).toEqual(null); // find nothing because on 3th postion isn't any matches
+        });
+
+        it('endInOld and endInNew - will end search in old and new text on specified position', () => {
+            const htmlDiff = new HtmlDiff('new text', 'old text'); // " text" - is match
+
+            htmlDiff.splitInputsIntoWords();
+            htmlDiff['matchGranularity'] = 4; // you can say it's biggest block size
+
+            expect(
+                htmlDiff.findMatch({
+                    startInOld: 0,
+                    endInOld: 1, // end search on 2th word
+                    startInNew: 0,
+                    endInNew: 1, // end search on 2th word
+                })
+            ).toEqual(null); // find nothing
+        });
+    });
+
+    describe('matchingBlocks()', () => {
+        it('find all matches in phrase', () => {
+            const htmlDiff = new HtmlDiff(
+                'new text other words',
+                'old text any words'
+            ); // " text ", " words" - is matches
+
+            htmlDiff.splitInputsIntoWords();
+            htmlDiff['matchGranularity'] = 4; // you can say it's biggest block size
+
+            const matches = [
+                new Match(1, 1, 3), // " text " match
+                new Match(5, 5, 2), // " words" match
+            ];
+
+            expect(htmlDiff.matchingBlocks()).toEqual(matches);
+        });
+    });
+    describe('operations() - return list of all modifications thats happend in new version', () => {
+        it('equal', () => {
+            const htmlDiff = new HtmlDiff('new words', 'new words');
+
+            htmlDiff.splitInputsIntoWords();
+            htmlDiff['matchGranularity'] = 4;
+
+            const operations = [
+                new Operation({
+                    action: Action.equal,
+                    startInOld: 0,
+                    startInNew: 0,
+                    endInOld: 3,
+                    endInNew: 3,
+                }),
+            ];
+
+            expect(htmlDiff.operations()).toEqual(operations);
+        });
+
+        it('deletion', () => {
+            const htmlDiff = new HtmlDiff('new words', 'new'); // " words" - deletion
+
+            htmlDiff.splitInputsIntoWords();
+            htmlDiff['matchGranularity'] = 4; // you can say it's biggest block size
+
+            const operations = [
+                new Operation({
+                    action: Action.equal,
+                    startInOld: 0,
+                    startInNew: 0,
+                    endInOld: 1,
+                    endInNew: 1,
+                }),
+                new Operation({
+                    action: Action.delete,
+                    startInOld: 1,
+                    startInNew: 1,
+                    endInOld: 3,
+                    endInNew: 1,
+                }),
+            ];
+
+            expect(htmlDiff.operations()).toEqual(operations);
+        });
+        it('insertion', () => {
+            const htmlDiff = new HtmlDiff('new words', 'new words added'); // " added" - insertion
+
+            htmlDiff.splitInputsIntoWords();
+            htmlDiff['matchGranularity'] = 4; // you can say it's biggest block size
+
+            const operations = [
+                new Operation({
+                    action: Action.equal,
+                    startInOld: 0,
+                    startInNew: 0,
+                    endInOld: 3,
+                    endInNew: 3,
+                }),
+                new Operation({
+                    action: Action.insert,
+                    startInOld: 3,
+                    startInNew: 3,
+                    endInOld: 3,
+                    endInNew: 5,
+                }),
+            ];
+
+            expect(htmlDiff.operations()).toEqual(operations);
+        });
+
+        it('replacemnt', () => {
+            const htmlDiff = new HtmlDiff('new words', 'new phrase'); // " added" - insertion
+
+            htmlDiff.splitInputsIntoWords();
+            htmlDiff['matchGranularity'] = 4; // you can say it's biggest block size
+
+            const operations = [
+                new Operation({
+                    action: Action.equal,
+                    startInOld: 0,
+                    startInNew: 0,
+                    endInOld: 2,
+                    endInNew: 2,
+                }),
+                new Operation({
+                    action: Action.replace,
+                    startInOld: 2,
+                    startInNew: 2,
+                    endInOld: 3,
+                    endInNew: 3,
+                }),
+            ];
+
+            expect(htmlDiff.operations()).toEqual(operations);
+        });
     });
 });

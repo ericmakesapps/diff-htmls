@@ -210,6 +210,19 @@ describe('WordSplitter', () => {
             ).toEqual(expect.arrayContaining(expectedDates));
         });
 
+        it('works with multiple blockExpressions', () => {
+            const stringWithDate = '19.02.2022 11-12-2022';
+            const blockExp = /\d\d\.\d\d\.\d\d\d\d/gm;
+            const blockExp2 = /\d\d\-\d\d\-\d\d\d\d/gm;
+            const expectedDates = ['19.02.2022', ' ', '11-12-2022'];
+            expect(
+                WordSplitter.convertHtmlToListOfWords(stringWithDate, [
+                    blockExp,
+                    blockExp2,
+                ])
+            ).toEqual(expect.arrayContaining(expectedDates));
+        });
+
         it('when blockExpressions cross each other - will throw an error', () => {
             const stringWithDate = '19.02.2022 and other words';
             const blockExp = /\d\d.\d\d.\d\d\d\d/gm;

@@ -43,8 +43,12 @@ class WordSplitter {
 
                 // Check if we need to group the next text sequence/block
                 if (this.blockLocations.has(idx)) {
+                    if(this.state.currentWord) { 
+                        this.state.words.push(this.state.currentWord.join(''));
+                        this.state.currentWord = [];
+                    }
                     isGrouping = true;
-                    groupingUntil = this.blockLocations.get(idx) || 0;
+                    groupingUntil = this.blockLocations.get(idx)!;
                 }
 
                 // if we are grouping, then we don't care about what type of character we have, it's going to be treated as a word
@@ -87,9 +91,7 @@ class WordSplitter {
                         this.state.words.push(this.state.currentWord.join(''));
 
                         this.state.currentWord = [];
-                        this.state.mode = Utils.isWhiteSpace(character)
-                            ? Mode.whitespace
-                            : Mode.character;
+                        this.state.mode = Mode.character;
                     } else {
                         this.state.currentWord.push(character);
                     }
