@@ -1,52 +1,79 @@
-JavaScript port of [HtmlDiff.NET](https://github.com/Rohland/htmldiff.net) which is itself a C# port of the Ruby implementation, [HtmlDiff](https://github.com/myobie/htmldiff/).
+JavaScript port of [HtmlDiff.NET](https://github.com/Rohland/htmldiff.net)
 
-Project Description
--------------------
+## Installation
 
-Diffs two HTML blocks, and returns a meshing of the two that includes `<ins>` and `<del>` elements.  The classes of these elements are `ins.diffins` for new code, `del.diffdel` for removed code, and `del.diffmod` and `ins.diffmod` for sections of code that have been changed.
+`npm install html-diff-ts --save`
+
+## Project Description
+
+Diffs two HTML blocks, and returns a meshing of the two that includes `<ins>` and `<del>` elements. The classes of these elements are `ins.diffins` for new code, `del.diffdel` for removed code, and `del.diffmod` and `ins.diffmod` for sections of code that have been changed.
 
 For "special tags" (primarily style tags such as `<em>` and `<strong>`), `ins.mod` elements are inserted with the new styles.
 
-Further description can be found at this [blog post](http://www.rohland.co.za/index.php/2009/10/31/csharp-html-diff-algorithm/) written by Rohland, the author of HtmlDiff.NET.
+## API
 
-**Note**: The diffing algorithm isn't perfect.  One example is that if a new `<p>` ends in the same string as the previous `<p>` tag did, two `<ins>` tags will be created: one starting at the beginning of the common string in the first `<p>` and one in the second `<p>` containing all the content up to the point the trailing common string begins.  It's a little frustrating, but I didn't write the algorithm (and honestly don't really understand it); I only ported it.
+Options:
 
-Usage
------
+-   `blocksExpression` - list of RegExpressions which will be countes as one block insteadof deviding it on parts (better see example)
 
-#### Html ####
+## Usage
 
-```html
-<html>
-<body>
-    <div id="oldHtml">
-        <p>Some <em>old</em> html here</p>
-    </div>
-
-    <div id="newHtml">
-        <p>Some <b>new</b> html goes here</p>
-    </div>
-
-    <div id="diffHtml">
-    </div>
-</body>
-</html>
-```
-
-#### JavaScript ####
+### Basic
 
 ```javascript
-import HtmlDiff from 'htmldiff-js';
+import diff from 'html-diff-ts';
 
+let oldHtml = '<p>Some <em>old</em> html here</p>';
+let newHtml = '<p>Some <b>new</b> html goes here</p>';
 
-let oldHtml = document.getElementById('oldHtml');
-let newHtml = document.getElementById('newHtml');
-let diffHtml = document.getElementById('diffHtml');
-
-diffHtml.innerHTML = HtmlDiff.execute(oldHtml.innerHTML, newHtml.innerHTML);
+let result = diff(oldHtml, newHtml);
 ```
 
-Demo
-----
+Result:
 
-I didn't port the demo, but it should output markup the same way the [htmldiff.net demo](https://github.com/Rohland/htmldiff.net/tree/master/Demo) does with a slight exception in what appeared to me to be a bug, which I 'fixed'.  I can no longer remember what that bug was, as I only ported this project quickly in order to use it in another project.
+```html
+<p>
+    Some <del><em>old</em></del> <ins> <b>new</b> </ins> html here
+</p>
+```
+
+Visualization:
+
+```diff
+Some
+- <em>old</em>
++ <b>new</b>
+html here
+```
+
+### With blocksExpression
+
+The tokenizer works by running the diff on words, but sometimes this isn't ideal. For example, it may look clunky when a date is edited from 12 Jan 2022 to 14 Feb 2022. It might be neater to treat the diff on the entire date rather than the independent tokens.
+You can achieve this using AddBlockExpression. Note, the Regex example is not meant to be exhaustive to cover all dates. If text matches the expression, the entire phrase is included as a single token to be compared, and that results in a much neater output.
+
+```javascript
+import diff from 'html-diff-ts';
+
+let oldHtml = '<p>12.11.2022</p>';
+let newHtml = '<p>15.12.2022</p>';
+let dateRegepx = /\d\d\.\d\d\.\d\d\d\d/gm;
+
+let result = (oldHtml, newHtml, { blocksExpression: [dateRegepx] });
+```
+
+Result:
+
+```html
+<p>
+    <p><del>12.11.2022</del> <ins>15.12.2022</ins></p>
+</p>
+```
+
+Visualization:
+
+```diff
+<p>
+- <em>12.11.2022</em>
++ <b>15.12.2022</b>
+</p>
+```
