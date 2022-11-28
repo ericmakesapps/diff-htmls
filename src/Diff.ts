@@ -63,6 +63,8 @@ class HtmlDiff {
         this.repeatingWordsAccuracy = 1.0;
         this.ignoreWhiteSpaceDifferences = false;
         this.orphanMatchThreshold = 0.0;
+
+        this.addBlockExpression = this.addBlockExpression.bind(this);
     }
 
     diff() {
