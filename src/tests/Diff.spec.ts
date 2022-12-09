@@ -197,4 +197,60 @@ describe('WordSplitter', () => {
             expect(htmlDiff.operations()).toEqual(operations);
         });
     });
+
+    describe('insertTag() - accept tag name and className and list of words; write to content field tag with passed words inside', () => {
+        it('insert tag with passed words to content field', () => {
+            const htmlDiff = new HtmlDiff('', '');
+            htmlDiff.insertTag('ins', '', ['this', ' ', 'is', ' ', 'words']);
+            expect(htmlDiff['content']).toEqual([
+                '<ins class="">this is words</ins>',
+            ]);
+        });
+        it('set class to tag', () => {
+            const htmlDiff = new HtmlDiff('', '');
+            htmlDiff.insertTag('ins', 'className', ['word']);
+            expect(htmlDiff['content']).toEqual([
+                '<ins class="className">word</ins>',
+            ]);
+        });
+        it('if there is tags inside - will put them before new tag', () => {
+            const htmlDiff = new HtmlDiff('', '');
+            htmlDiff.insertTag('ins', '', [
+                '<strong>',
+                'text',
+                ' ',
+                'inside',
+                '</strong>',
+            ]);
+            expect(htmlDiff['content']).toEqual([
+                '<strong><ins class="">text inside</ins></strong>',
+            ]);
+        });
+        it('works with mutliple tags inside', () => {
+            const htmlDiff = new HtmlDiff('', '');
+            htmlDiff.insertTag('ins', '', [
+                '<strong>',
+                'text',
+                '</strong>',
+                '<b>',
+                'inside',
+                '</b>',
+            ]);
+            expect(htmlDiff['content']).toEqual([
+                '<strong><ins class="">text</ins></strong><b><ins class="">inside</ins></b>',
+            ]);
+        });
+        it('expect img tags - will put them inside the tag', () => {
+            const htmlDiff = new HtmlDiff('', '');
+            htmlDiff.insertTag('ins', '', [
+                '<strong>',
+                '<img />',
+                'text',
+                '</strong>',
+            ]);
+            expect(htmlDiff['content']).toEqual([
+                '<strong><ins class=""><img />text</ins></strong>',
+            ]);
+        });
+    });
 });

@@ -85,7 +85,7 @@ class HtmlDiff {
         );
         let operations = this.operations();
 
-        // set original words 
+        // set original words
         this.orinalWordsInOld.forEach((value, key) => {
             this.oldWords[key] = value;
         });
@@ -177,127 +177,59 @@ class HtmlDiff {
         this.content.push(result.join(''));
     }
 
-    insertTag(tag: string, cssClass: string, words: string[]) {
-        while (words.length) {
-            let nonTags = this.extractConsecutiveWords(
-                words,
-                x => !Utils.isTag(x)
-            );
-
-            let specialCaseTagInjection = '';
-            let specialCaseTagInjectionIsbefore = false;
-
-            if (nonTags.length !== 0) {
-                let text = Utils.wrapText(nonTags.join(''), tag, cssClass);
-                this.content.push(text);
-            } else {
-                if (specialCaseOpeningTagRegex.test(words[0])) {
-                    let matchedTag = words[0].match(specialCaseOpeningTagRegex);
-                    if (matchedTag) {
-                        const result =
-                            '<' + matchedTag[0].replace(/(<|>| )/g, '') + '>';
-                        this.specialTagDiffStack.push(result);
-                    }
-                    specialCaseTagInjection = '<ins class="mod">';
-                    if (tag === 'del') {
-                        words.shift();
-
-                        while (
-                            words.length > 0 &&
-                            specialCaseOpeningTagRegex.test(words[0])
-                        ) {
-                            words.shift();
-                        }
-                    }
-                } else if (specialCaseClosingTags.has(words[0])) {
-                    let openingTag =
-                        this.specialTagDiffStack.length === 0
-                            ? null
-                            : this.specialTagDiffStack.pop();
-
-                    if (
-                        !(
-                            openingTag === null ||
-                            openingTag !== words[0].replace(/\//g, '')
-                        )
-                    ) {
-                        specialCaseTagInjection = '</ins>';
-                        specialCaseTagInjectionIsbefore = true;
-                    }
-
-                    if (tag === 'del') {
-                        words.shift();
-
-                        while (
-                            words.length > 0 &&
-                            specialCaseClosingTags.has(words[0])
-                        ) {
-                            words.shift();
-                        }
-                    }
-                }
-
-                if (
-                    words.length === 0 &&
-                    specialCaseTagInjection.length === 0
-                ) {
-                    break;
-                }
-
-                if (specialCaseTagInjectionIsbefore) {
-                    this.content.push(
-                        specialCaseTagInjection +
-                            this.extractConsecutiveWords(
-                                words,
-                                Utils.isTag
-                            ).join('')
-                    );
-                } else {
-                    this.content.push(
-                        this.extractConsecutiveWords(words, Utils.isTag).join(
-                            ''
-                        ) + specialCaseTagInjection
-                    );
-                }
+    insertTag(tag: string, cssClass: string, content: string[]) {
+        let length, nonTags, position, rendering, tags;
+        rendering = '';
+        position = 0;
+        length = content.length;
+        while (true) {
+            if (position >= length) {
+                break;
             }
+            nonTags = this.consecutiveWhere(
+                position,
+                content,
+                (x: string) => !Utils.isTag(x)
+            );
+            position += nonTags.length;
+            if (nonTags.length !== 0) {
+                rendering += `<${tag} class="${cssClass}">${nonTags.join(
+                    ''
+                )}</${tag}>`;
+            }
+            if (position >= length) {
+                break;
+            }
+            tags = this.consecutiveWhere(position, content, Utils.isTag);
+            position += tags.length;
+            rendering += tags.join('');
         }
+
+        this.content.push(rendering);
     }
 
-    extractConsecutiveWords(
-        words: string[],
-        condition: (word: string) => boolean
+    consecutiveWhere(
+        start: number,
+        content: string[],
+        predicate: (value: string) => boolean
     ) {
-        let indexOfFirstTag: number | null = null;
-
-        for (let i = 0; i < words.length; i++) {
-            let word = words[i];
-
-            if (i === 0 && word === ' ') {
-                words[i] = '&nbsp;';
+        let answer, i, index, lastMatchingIndex, len, token;
+        content = content.slice(start, +content.length + 1 || 9e9);
+        lastMatchingIndex = void 0;
+        for (index = i = 0, len = content.length; i < len; index = ++i) {
+            token = content[index];
+            answer = predicate(token);
+            if (answer === true) {
+                lastMatchingIndex = index;
             }
-
-            if (!condition(word)) {
-                indexOfFirstTag = i;
+            if (answer === false) {
                 break;
             }
         }
-
-        if (indexOfFirstTag !== null) {
-            let items = words.filter(
-                (_s, pos) => pos >= 0 && pos < (indexOfFirstTag || 0)
-            );
-            if (indexOfFirstTag > 0) {
-                words.splice(0, indexOfFirstTag);
-            }
-
-            return items;
-        } else {
-            let items = words.filter(
-                (_s, pos) => pos >= 0 && pos < words.length
-            );
-            words.splice(0, words.length);
-            return items;
+        if (lastMatchingIndex != null) {
+            return content.slice(0, +lastMatchingIndex + 1 || 9e9);
         }
+        return [];
     }
 
     operations() {
