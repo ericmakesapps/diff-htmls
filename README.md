@@ -1,4 +1,4 @@
-JavaScript port of [HtmlDiff.NET](https://github.com/Rohland/htmldiff.net)
+TypeScript port of [HtmlDiff.NET](https://github.com/Rohland/htmldiff.net)
 
 ## Installation
 
