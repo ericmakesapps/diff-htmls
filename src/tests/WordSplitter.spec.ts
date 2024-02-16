@@ -247,7 +247,7 @@ describe('WordSplitter', () => {
             ).toEqual(expect.arrayContaining(expectedWords));
         });
 
-        it('when blockExpressions cross each other - will throw an error', () => {
+        it('when blockExpressions cross each other - will not throw an error', () => {
             const stringWithDate = '19.02.2022 and other words';
             const blockExp = {exp: /\d\d.\d\d.\d\d\d\d/gm};
             const blockExp2 = {exp: /\d\d.\d\d.\d\d\d\d/gm};
@@ -256,7 +256,7 @@ describe('WordSplitter', () => {
                     blockExp,
                     blockExp2,
                 ])
-            ).toThrowError();
+            ).not.toThrowError();
         });
     });
 });

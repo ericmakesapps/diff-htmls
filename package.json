@@ -1,49 +1,52 @@
 {
-  "name": "html-diff-ts",
-  "version": "1.4.2",
-  "description": "JavaScript port of [HtmlDiff.NET](https://github.com/Rohland/htmldiff.net) which is itself a C# port of the Ruby implementation, [HtmlDiff](https://github.com/myobie/htmldiff/).",
-  "types": "./lib/cjs/types/index.d.ts",
-  "main": "./lib/cjs/index.js",
-  "files": [
-    "lib/**/*"
-  ],
-  "scripts": {
-    "clean": "rm -rf ./lib",
-    "build": "npm run clean && npm run build:esm && npm run build:cjs",
-    "build:esm": "tsc -p ./configs/tsconfig.esm.json && mv lib/esm/index.js lib/esm/index.mjs",
-    "build:cjs": "tsc -p ./configs/tsconfig.cjs.json",
-    "prepack": "npm run build",
-    "test": "jest",
-    "test:watch": "jest --watch"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/deadusr/htmldiff-js.git"
-  },
-  "exports": {
-    ".": {
-      "import": {
-        "types": "./lib/esm/types/index.d.ts",
-        "default": "./lib/esm/index.mjs"
-      },
-      "require": {
-        "types": "./lib/cjs/types/index.d.ts",
-        "default": "./lib/cjs/index.js"
-      }
-    }
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/deadusr/htmldiff-js/issues"
-  },
-  "homepage": "https://github.com/deadusr/htmldiff-js#readme",
-  "devDependencies": {
-    "@types/jest": "^29.2.3",
-    "jest": "^29.3.1",
-    "ts-jest": "^29.0.3",
-    "ts-node": "^10.9.1",
-    "typescript": "^4.9.3"
-  }
+	"name": "diff-htmls",
+	"version": "0.0.1",
+	"description": "Fork of [html-diff-ts](https://github.com/ericmakesapps/html-diff-ts), which is a TypeScript port of [HtmlDiff.NET](https://github.com/Rohland/htmldiff.net) which is itself a C# port of the Ruby implementation, [HtmlDiff](https://github.com/myobie/htmldiff/).",
+	"types": "./lib/cjs/types/index.d.ts",
+	"main": "./lib/cjs/index.js",
+	"files": [
+		"lib/**/*"
+	],
+	"scripts": {
+		"clean": "rm -rf ./lib",
+		"build": "npm run clean && npm run build:esm && npm run build:cjs",
+		"build:esm": "tsc -p ./configs/tsconfig.esm.json && mv lib/esm/index.js lib/esm/index.mjs",
+		"build:cjs": "tsc -p ./configs/tsconfig.cjs.json",
+		"prepack": "npm run build",
+		"test": "jest",
+		"test:watch": "jest --watch"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ericmakesapps/diff-htmls.git"
+	},
+	"exports": {
+		".": {
+			"import": {
+				"types": "./lib/esm/types/index.d.ts",
+				"default": "./lib/esm/index.mjs"
+			},
+			"require": {
+				"types": "./lib/cjs/types/index.d.ts",
+				"default": "./lib/cjs/index.js"
+			}
+		}
+	},
+	"keywords": [],
+	"contributors": [
+		"Yura Lebedev <iura228.lebedev8775@gmail.com>",
+		"Eric Ferreira <eric@ericmakesapps.com>"
+	],
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/ericmakesapps/diff-htmls/issues"
+	},
+	"homepage": "https://github.com/ericmakesapps/diff-htmls#readme",
+	"devDependencies": {
+		"@types/jest": "^29.2.3",
+		"jest": "^29.3.1",
+		"ts-jest": "^29.0.3",
+		"ts-node": "^10.9.1",
+		"typescript": "^4.9.3"
+	}
 }

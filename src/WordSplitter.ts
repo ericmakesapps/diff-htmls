@@ -234,10 +234,7 @@ class WordSplitter {
                                 (match.index || 0) <= el.wordBoundaries.ends
                         )
                     ) {
-                        throw new Error(
-                            'One or more block expressions result in a text sequence that overlaps. Current expression: ' +
-                                exp.exp.toString()
-                        );
+                        continue
                     }
 
                     const target =
