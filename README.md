@@ -1,7 +1,7 @@
 # Diff HTML
 
 This is originally a fork of
-[html-diff-ts](https://github.com/ericmakesapps/html-diff-ts), which is a TypeScript port
+[html-diff-ts](https://github.com/deadusr/html-diff-ts), which is a TypeScript port
 of [HtmlDiff.NET](https://github.com/Rohland/htmldiff.net) which is itself a C# port of
 the Ruby implementation, [HtmlDiff](https://github.com/myobie/htmldiff/).
 
@@ -32,11 +32,11 @@ elements are inserted with the new styles.
 
 Options:
 
--   `blocksExpression` - list of Regular Expressions which will be countes as one block
-    (token) instead of dividing it on parts by default mechanism (better see example)
-    -   `exp` - Regular Expression for token itself
-    -   `compareBy` - Regular Expression for part of the token by which will be comparison
-        made
+- `blocksExpression` - list of Regular Expressions which will be countes as one block
+  (token) instead of dividing it on parts by default mechanism (better see example)
+  - `exp` - Regular Expression for token itself
+  - `compareBy` - Regular Expression for part of the token by which will be comparison
+    made
 
 ## Usage
 

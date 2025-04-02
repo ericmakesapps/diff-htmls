@@ -1,0 +1,26 @@
+{
+	"plugins": [
+		"@prettier/plugin-xml",
+		"prettier-plugin-package",
+		"@trivago/prettier-plugin-sort-imports"
+	],
+	"useTabs": true,
+	"semi": false,
+	"printWidth": 90,
+	"arrowParens": "always",
+	"trailingComma": "none",
+	"importOrder": [
+		".*(polyfill|reflect).*",
+		"^(react)$",
+		"^[@a-zA-Z].*$",
+		"^(\\.\\./){5}.+$",
+		"^(\\.\\./){4}.+$",
+		"^(\\.\\./){3}.+$",
+		"^(\\.\\./){2}.+$",
+		"^(\\.\\./){1}.+$",
+		"^\\./.*$"
+	],
+	"importOrderSeparation": true,
+	"importOrderSortSpecifiers": true,
+	"importOrderCaseInsensitive": true
+}
